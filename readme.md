@@ -22,6 +22,8 @@
 
 **CogniGraph AI** is a production-ready implementation of **Agentic Retrieval-Augmented Generation (RAG)** designed for academic research and complex document synthesis.
 
+![CogniGraph AI](assets/frontend.png)
+
 Unlike traditional RAG systems that rely solely on vector similarity search, CogniGraph intelligently combines:
 
 - 🔍 **Semantic Retrieval** using **Qdrant Vector Database**
@@ -239,6 +241,14 @@ NEO4J_URI=neo4j+s://your-db-id.databases.neo4j.io
 NEO4J_USERNAME=neo4j
 
 NEO4J_PASSWORD=your_secure_password
+
+# =====================================
+# QDRANT 
+# =====================================
+
+QDRANT_URL= your_qdrant_url
+
+QDRANT_API_KEY= your_qdrant_api_key
 ```
 
 ---

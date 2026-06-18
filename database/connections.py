@@ -20,12 +20,24 @@ class VectorDBManager:
     def __init__(self, collection_name: str = "academic_papers"):
         self.collection_name = collection_name
         
+        # 1. Look for Qdrant Cloud credentials
+        qdrant_url = os.getenv("QDRANT_URL")
+        qdrant_api_key = os.getenv("QDRANT_API_KEY")
         
-        logger.info(f"Initializing Qdrant client with persistent storage at: {self.storage_path}")
-        self.client = QdrantClient(
-            url=os.getenv("QDRANT_URL"),
-            api_key=os.getenv("QDRANT_API_KEY")
-        )
+        # 2. Connect to Cloud if credentials exist
+        if qdrant_url and qdrant_api_key:
+            logger.info(f"Connecting to Qdrant Cloud at: {qdrant_url}")
+            self.client = QdrantClient(
+                url=qdrant_url,
+                api_key=qdrant_api_key,
+                timeout=60.0 
+            )
+        # 3. Otherwise, fallback to local storage
+        else:
+            self.storage_path = "./qdrant_data"
+            logger.info(f"Initializing Qdrant client locally at: {self.storage_path}")
+            self.client = QdrantClient(path=self.storage_path)
+
         self._initialize_collection()
 
     def _initialize_collection(self):
