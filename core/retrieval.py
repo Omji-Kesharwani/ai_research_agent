@@ -3,7 +3,7 @@ import logging
 from typing import List, Dict, Any
 
 from database.connections import vector_db, graph_db
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,19 +20,18 @@ class HybridRetriever:
         try:
             # Initialize Google Gemini Embeddings
             logger.info("Initializing Gemini Embedding Model for Retrieval...")
-            self.embedding_model = GoogleGenerativeAIEmbeddings(
-                model="models/embedding-001",
-                google_api_key=os.getenv("GEMINI_API_KEY")
+            self.embedding_model = HuggingFaceInferenceAPIEmbeddings(
+                api_key=os.getenv("HF_TOKEN"),
+                model_name="BAAI/bge-small-en-v1.5"
             )
         except Exception as e:
             logger.error(f"Failed to load Gemini Embedding model: {str(e)}")
             raise e
 
     def _get_dense_embedding(self, text: str) -> List[float]:
-        """Converts a text query into a 768-dimensional vector using Gemini."""
-        # LangChain's embed_query returns a List[float] natively
-        return self.embedding_model.embed_query(text)
-
+            """Converts a text query into a 384-dimensional vector using HF API."""
+            return self.embedding_model.embed_query(text)
+            
     def vector_search(self, query: str, top_k: int = 3) -> List[str]:
         """Executes a Dense Search in Qdrant using the modern query_points API."""
         logger.info(f"Executing Vector DB search for query: '{query}'")

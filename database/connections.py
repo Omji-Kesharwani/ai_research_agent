@@ -47,7 +47,7 @@ class VectorDBManager:
                 logger.info(f"Creating Hybrid Qdrant Collection: {self.collection_name}")
                 self.client.create_collection(
                     collection_name=self.collection_name,
-                    vectors_config={"dense": VectorParams(size=768, distance=Distance.COSINE)},
+                    vectors_config={"dense": VectorParams(size=384, distance=Distance.COSINE)},
                     sparse_vectors_config={"sparse": SparseVectorParams()}
                 )
             else:

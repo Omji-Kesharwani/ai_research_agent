@@ -1,8 +1,8 @@
 import os
 import uuid
 import logging
-# REMOVED: from fastembed import TextEmbedding
-from langchain_google_genai import GoogleGenerativeAIEmbeddings
+
+from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
 from qdrant_client.models import PointStruct
 
 # Import your existing modules
@@ -34,11 +34,10 @@ def populate_vector_db(pdf_path: str):
 
     # 2. Initialize the Embedding Model (Using Gemini API)
     logger.info("🧠 Loading Google Gemini Embedding model...")
-    embedding_model = GoogleGenerativeAIEmbeddings(
-        model="models/embedding-001",
-        google_api_key=os.getenv("GEMINI_API_KEY")
-    )
-
+    embedding_model = HuggingFaceInferenceAPIEmbeddings(
+            api_key=os.getenv("HF_TOKEN"),
+            model_name="BAAI/bge-small-en-v1.5"
+        )
     # 3. Generate Embeddings for all child chunks
     logger.info(f"🔢 Generating vector embeddings for {len(child_chunks)} text chunks. This may take a moment...")
     texts_to_embed = [chunk.page_content for chunk in child_chunks]
