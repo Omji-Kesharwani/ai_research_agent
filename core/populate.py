@@ -1,8 +1,8 @@
-# --- File: core/populate.py ---
 import os
 import uuid
 import logging
-from fastembed import TextEmbedding
+# REMOVED: from fastembed import TextEmbedding
+from langchain_google_genai import GoogleGenerativeAIEmbeddings
 from qdrant_client.models import PointStruct
 
 # Import your existing modules
@@ -32,16 +32,24 @@ def populate_vector_db(pdf_path: str):
         logger.warning("No text could be extracted from the PDF.")
         return
 
-    # 2. Initialize the Embedding Model (Same as Phase 4)
-    logger.info("🧠 Loading FastEmbed model (BAAI/bge-small-en-v1.5)...")
-    embedding_model = TextEmbedding(model_name="BAAI/bge-small-en-v1.5")
+    # 2. Initialize the Embedding Model (Using Gemini API)
+    logger.info("🧠 Loading Google Gemini Embedding model...")
+    embedding_model = GoogleGenerativeAIEmbeddings(
+        model="models/embedding-001",
+        google_api_key=os.getenv("GEMINI_API_KEY")
+    )
 
     # 3. Generate Embeddings for all child chunks
     logger.info(f"🔢 Generating vector embeddings for {len(child_chunks)} text chunks. This may take a moment...")
     texts_to_embed = [chunk.page_content for chunk in child_chunks]
     
-    # FastEmbed returns a generator, convert to a list of numpy arrays
-    embeddings = list(embedding_model.embed(texts_to_embed))
+    # Process in batches to respect API limits
+    batch_size = 100
+    embeddings = []
+    for i in range(0, len(texts_to_embed), batch_size):
+        batch_texts = texts_to_embed[i:i + batch_size]
+        batch_embeddings = embedding_model.embed_documents(batch_texts)
+        embeddings.extend(batch_embeddings)
 
     # 4. Format the payload for Qdrant
     points = []
@@ -52,7 +60,7 @@ def populate_vector_db(pdf_path: str):
             PointStruct(
                 id=point_id,
                 # We specifically target the "dense" named vector we set up in Phase 3
-                vector={"dense": embedding.tolist()},
+                vector={"dense": embedding}, 
                 # We attach the text and relational metadata as the payload
                 payload={
                     "text": chunk.page_content,
@@ -64,7 +72,7 @@ def populate_vector_db(pdf_path: str):
         )
 
     # 5. Upload to local persistent Qdrant storage
-    logger.info("💾 Uploading data to Qdrant persistent storage...")
+    logger.info("💾 Uploading data to Qdrant Cloud persistent storage...")
     client = vector_db.get_client()
     
     client.upsert(

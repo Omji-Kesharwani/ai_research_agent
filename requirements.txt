@@ -16,3 +16,4 @@ pypdf>=4.1.0
 instructor>=1.0.0        
 python-dotenv>=1.0.1
 python-multipart
+langchain-google-genai
