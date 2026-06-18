@@ -28,10 +28,10 @@ class PaperSummary(BaseModel):
     data_gaps: Optional[str] = Field(default=None, description="Any limitations or missing data noted by the authors.")
 
 class RoutingDecision(BaseModel):
-    """Schema to determine which database the agent should query."""
-    route_to_vector: bool = Field(description="True if the query asks for general concepts or methodology.")
-    route_to_graph: bool = Field(description="True if the query asks about relationships between specific entities, models, or authors.")
-    extracted_entity: Optional[str] = Field(default=None, description="The specific model or concept name to search in the graph.")
+    """Schema to determine which database the agent should query based on data capability."""
+    route_to_vector: bool = Field(description="TRUE if the query requires unstructured text, descriptions, background context, or semantic knowledge. This should be True for most queries.")
+    route_to_graph: bool = Field(description="TRUE if the query explicitly asks about relationships, dependencies, connections, or networks between specific entities.")
+    extracted_entity: Optional[str] = Field(default=None, description="Any prominent proper noun, person, organization, or concept extracted from the query to aid graph traversal.")
 
 
 class ResearchAgentService:
@@ -57,11 +57,19 @@ class ResearchAgentService:
         """
         logger.info(f"Routing query: {user_query}")
         
+        system_instructions = """You are an AI routing agent. Your job is to analyze the user's query and route it to the appropriate databases.
+        
+        CRITICAL RULES:
+        1. Evaluate Vector and Graph routing INDEPENDENTLY. They are NOT mutually exclusive. You can set both to True.
+        2. Vector DB contains all document text. Graph DB only contains relationship links.
+        3. A general inquiry about an entity (e.g., "Tell me about...", "Who is...") requires descriptive text, so route_to_vector MUST be True.
+        """
+        logger.info(f"Routing query: {user_query}")
+        
         prompt = ChatPromptTemplate.from_messages([
-            ("system", "You are an AI routing assistant. Analyze the user's academic query and determine the optimal database routing strategy."),
+            ("system", system_instructions),
             ("human", "{query}")
         ])
-        
         # Bind the Pydantic schema to force the LLM to output JSON matching our model
         structured_llm = self.llm.with_structured_output(RoutingDecision)
         chain = prompt | structured_llm
