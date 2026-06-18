@@ -3,7 +3,7 @@ import logging
 from typing import List, Dict, Any
 
 from database.connections import vector_db, graph_db
-from langchain_community.embeddings import HuggingFaceInferenceAPIEmbeddings
+from langchain_upstage import UpstageEmbeddings
 
 logging.basicConfig(
     level=logging.INFO,
@@ -20,9 +20,10 @@ class HybridRetriever:
         try:
             # Initialize Google Gemini Embeddings
             logger.info("Initializing Gemini Embedding Model for Retrieval...")
-            self.embedding_model = HuggingFaceInferenceAPIEmbeddings(
-                api_key=os.getenv("HF_TOKEN"),
-                model_name="BAAI/bge-small-en-v1.5"
+            logger.info("Initializing Upstage Cloud Embeddings...")
+            self.embedding_model = UpstageEmbeddings(
+                api_key=os.getenv("UPSTAGE_API_KEY"),
+                model="solar-embedding-1-large"
             )
         except Exception as e:
             logger.error(f"Failed to load Gemini Embedding model: {str(e)}")

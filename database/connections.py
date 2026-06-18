@@ -17,7 +17,7 @@ logger = logging.getLogger(__name__)
 load_dotenv()
 
 class VectorDBManager:
-    def __init__(self, collection_name: str = "academic_papers_v2"):
+    def __init__(self, collection_name: str = "academic_papers_v3"):
         self.collection_name = collection_name
         
         # 1. Look for Qdrant Cloud credentials
@@ -47,7 +47,7 @@ class VectorDBManager:
                 logger.info(f"Creating Hybrid Qdrant Collection: {self.collection_name}")
                 self.client.create_collection(
                     collection_name=self.collection_name,
-                    vectors_config={"dense": VectorParams(size=384, distance=Distance.COSINE)},
+                    vectors_config={"dense": VectorParams(size=4096, distance=Distance.COSINE)},
                     sparse_vectors_config={"sparse": SparseVectorParams()}
                 )
             else:
