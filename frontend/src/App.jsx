@@ -28,7 +28,7 @@ export default function App() {
     setResult(null);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/research', {
+      const response = await fetch('https://ai-research-agent-6t29.onrender.com/api/research', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ query }),
@@ -58,7 +58,7 @@ export default function App() {
     formData.append('file', selectedFile);
 
     try {
-      const response = await fetch('http://127.0.0.1:8000/api/upload', {
+      const response = await fetch('https://ai-research-agent-6t29.onrender.com/api/upload', {
         method: 'POST',
         body: formData,
       });
