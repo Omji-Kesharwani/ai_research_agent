@@ -31,8 +31,8 @@ def populate_vector_db(pdf_path: str):
         logger.warning("No text could be extracted from the PDF.")
         return
 
-    # 2. Initialize the Embedding Model (Using Gemini API)
-    logger.info("🧠 Loading Google Gemini Embedding model...")
+    # 2. Initialize the Embedding Model 
+
     logger.info("🧠 Loading Upstage Cloud Embedding model...")
     embedding_model = UpstageEmbeddings(
         api_key=os.getenv("UPSTAGE_API_KEY"),
