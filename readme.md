@@ -162,7 +162,7 @@ Features:
 | LangChain | LLM Workflows |
 | LangGraph | Agent Orchestration |
 | Groq | LLM Inference |
-| FastEmbed | Local Embeddings |
+| Upstage | Local Embeddings |
 | Qdrant | Vector Database |
 | Neo4j | Knowledge Graph |
 | Pydantic | Data Validation |
